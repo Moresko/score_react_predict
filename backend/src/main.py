@@ -1,37 +1,45 @@
-# main.py
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
-import joblib as jb
+import joblib
 from predict_utils import calculate_team_form
 
 app = FastAPI()
 
-# Load trained model + encoders
-model = jb.load("model.pkl")
-team_encoder = jb.load("team_encoder.pkl")
-ref_encoder = jb.load("ref_encoder.pkl")
+# Allow frontend access
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React dev server
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# Load full dataset to compute form
+# Load models
+model = joblib.load("model.pkl")
+team_encoder = joblib.load("team_encoder.pkl")
+ref_encoder = joblib.load("ref_encoder.pkl")
+
+# Load data
 football_data = pd.read_csv("premier_league.csv")
 football_data.dropna(inplace=True)
-football_data['Date'] = pd.to_datetime(football_data['Date'], errors='coerce')
+football_data['Date'] = pd.to_datetime(football_data['Date'])
 football_data['Result'] = football_data['FTR'].map({'H': 1, 'D': 0, 'A': -1})
 
-# Request schema
 class MatchInput(BaseModel):
     home_team: str
     away_team: str
     referee: str
-    date: str  # ISO format
+    date: str
 
 @app.post("/predict")
-def predict_match(input: MatchInput):
+def predict(input: MatchInput):
     try:
         home_id = team_encoder.transform([input.home_team])[0]
         away_id = team_encoder.transform([input.away_team])[0]
     except ValueError:
-        return {"error": "Unknown team name."}
+        return {"error": "Invalid team"}
 
     referee_id = (
         ref_encoder.transform([input.referee])[0]
@@ -60,7 +68,5 @@ def predict_match(input: MatchInput):
 
     pred = model.predict(row)[0]
     result_map = {1: "🏠 Home Win", 0: "🤝 Draw", -1: "✈️ Away Win"}
-    return {
-        "prediction": result_map[pred],
-        "raw_value": int(pred)
-    }
+
+    return {"prediction": result_map[pred], "raw_value": int(pred)}
