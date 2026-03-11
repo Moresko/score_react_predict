@@ -40,25 +40,25 @@ function App() {
 
   return (
     <div style={{ padding: 20, fontFamily: "Arial" }}>
-      <h1>⚽ Match Predictor</h1>
+      <h1> Match Predictor</h1>
 
-      <label>Home Team: </label>
+      <label>Domáci: </label>
       <input value={homeTeam} onChange={(e) => setHomeTeam(e.target.value)} />
       <br /><br />
 
-      <label>Away Team: </label>
+      <label>Hostia: </label>
       <input value={awayTeam} onChange={(e) => setAwayTeam(e.target.value)} />
       <br /><br />
 
-      <label>Referee: </label>
+      <label>Rozhodca: </label>
       <input value={referee} onChange={(e) => setReferee(e.target.value)} />
       <br /><br />
 
-      <label>Date: </label>
+      <label>Dátum: </label>
       <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
       <br /><br />
 
-      <button onClick={handlePredict}>Predict Match</button>
+      <button onClick={handlePredict}>Predict</button>
 
       <hr />
       {prediction && <h3>🔮 Prediction: {prediction}</h3>}
