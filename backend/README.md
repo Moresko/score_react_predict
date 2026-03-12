@@ -1,4 +1,5 @@
 link https://github.com/datasets/football-datasets/blob/main/datasets/bundesliga/season-2526.csv
+https://github.com/statsbomb/open-data/tree/master/data
 
 ako spustit bakckedn:
 python3 -m venv venv
